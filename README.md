@@ -24,14 +24,14 @@ the `asyncio` library as it is not included.
    $ python3 server/run.py
    ````
 
-By default the server listens on `0.0.0.0:8080`. If this is not desired, edit `server/run.py:LISTEN_ADDRESS` and `html5client/ws.js:server`.
+By default the server listens on `0.0.0.0:8080`. If this is not desired, edit `server/run.py:LISTEN_ADDRESS` and `client/ws.js:server`.
 
 ### To load the client:
 
 1. Fire up the built-in Python web server and load the client from there:
 
    ```
-   $ cd html5client
+   $ cd client
    $ python3 -m http.server
    $ $BROWSER 'http://localhost:8000/'
    ```
