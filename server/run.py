@@ -1,11 +1,55 @@
 #!/usr/bin/env python3
-
-LISTEN_ADDRESS = ('0.0.0.0', 8080)
-
-import websockets
-from server import client_handler
-start_server = websockets.serve(client_handler, *LISTEN_ADDRESS)
-
 import asyncio
+import json
+import logging
+import websockets
+
+
+logging.basicConfig()
+
+# The set of clients connected to this server. It is used to distribute
+# messages.
+USERS = {} #: {websocket: name}
+
+
+async def notify_users(users, message):
+    if users:  # asyncio.wait doesn't accept an empty list
+        await asyncio.wait([user.send(message) for user in users.keys()])
+
+
+async def register(websocket, name):
+    print('New client', websocket)
+    print(' ({} existing clients)'.format(len(USERS)))
+
+    user = {websocket: name}
+    await notify_users(user, 'Welcome to websocket-chat, {}'.format(name))
+    await notify_users(user, 'There are {} other users connected: {}'.format(len(USERS), list(USERS.values())))
+
+    USERS[websocket] = name
+    await notify_users(USERS, name + ' has joined the chat')
+
+
+async def unregister(websocket):
+    print('Client closed connection', websocket)
+    name = USERS[websocket]
+    del USERS[websocket]
+    await notify_users(USERS, name + ' has left the chat')
+
+
+async def chat_handler(websocket, path):
+    try:
+        first = True
+        async for message in websocket:
+            if first:
+                await register(websocket, message)
+                first = False
+                continue
+            await notify_users(USERS, '{}: {}'.format(USERS[websocket], message))
+    finally:
+        await unregister(websocket)
+
+
+start_server = websockets.serve(chat_handler, "localhost", 8080)
+
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()
