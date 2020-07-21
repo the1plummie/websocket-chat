@@ -21,7 +21,6 @@ async def register(websocket, name):
     print('New client', websocket)
     print(' ({} existing clients)'.format(len(USERS)))
 
-    user = {websocket: name}
     await notify_users(user, 'Welcome to websocket-chat, {}'.format(name))
     await notify_users(user, 'There are {} other users connected: {}'.format(len(USERS), list(USERS.values())))
 
@@ -38,13 +37,14 @@ async def unregister(websocket):
 
 async def chat_handler(websocket, path):
     try:
-        first = True
         async for message in websocket:
-            if first:
-                await register(websocket, message)
-                first = False
-                continue
-            await notify_users(USERS, '{}: {}'.format(USERS[websocket], message))
+            data = json.loads(message)
+            if data['type'] == 'name' and len(data['name']) > 0:
+                await register(websocket, data['name'])
+            elif data["type"] == "msg" and len(data['msg']) > 0:
+                await notify_users(USERS, '{}: {}'.format(USERS[websocket], data['msg']))
+            else:
+                logging.error("unsupported event: {}", data)
     finally:
         await unregister(websocket)
 

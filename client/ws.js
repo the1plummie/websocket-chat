@@ -29,7 +29,8 @@ $(document).ready(function() {
         socket.onopen = function(event) {
             $('#jumbotron').hide();
             write_to_mbox('Connected to: ' + server);
-            socket.send(name);
+            msg = {"type":"name", "name": name};
+            socket.send(JSON.stringify(msg));
             $('#message_wrapper').show();
             $('#message').focus();
         };
@@ -43,7 +44,8 @@ $(document).ready(function() {
         };
 
         $('#message-form').submit(function() {
-            socket.send($('#message').val());
+            msg = {"type": "msg", "msg": $('#message').val()};
+            socket.send(JSON.stringify(msg));
             $('#message').val('');
             return false;
         });
