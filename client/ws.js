@@ -36,7 +36,12 @@ $(document).ready(function() {
         };
 
         socket.onmessage = function(event) {
-            write_to_mbox(event.data)
+            var data = JSON.parse(event.data)
+            if (data['type']=='msg') {
+                write_to_mbox(data['msg'])
+            } else {
+                console.log('Unsupported type: ' + data['type']);
+            }
         };
 
         socket.onclose = function(event) {

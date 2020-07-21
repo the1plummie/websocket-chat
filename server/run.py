@@ -14,7 +14,8 @@ USERS = {} #: {websocket: name}
 
 async def notify_users(users, message):
     if users:  # asyncio.wait doesn't accept an empty list
-        await asyncio.wait([user.send(message) for user in users.keys()])
+        msg = json.dumps({'type': 'msg', 'msg': message})
+        await asyncio.wait([user.send(msg) for user in users.keys()])
 
 
 async def register(websocket, name):
