@@ -21,6 +21,7 @@ async def register(websocket, name):
     print('New client', websocket)
     print(' ({} existing clients)'.format(len(USERS)))
 
+    user = {websocket: name}
     await notify_users(user, 'Welcome to websocket-chat, {}'.format(name))
     await notify_users(user, 'There are {} other users connected: {}'.format(len(USERS), list(USERS.values())))
 
