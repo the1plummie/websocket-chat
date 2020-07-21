@@ -13,6 +13,9 @@ function timestamp() {
 function write_to_mbox(message) {
     var line = '[' + timestamp() + '] ' + message + '<br>';
     $('#messages').append(line);
+
+    var msgBox = $('.message_box')
+    msgBox.animate({scrollTop : msgBox.prop('scrollHeight')})
 }
 
 $(document).ready(function() {
